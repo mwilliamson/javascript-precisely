@@ -20,6 +20,14 @@ suite(__filename, () => {
         assert.deepStrictEqual(result, unmatched("was 2"));
     });
 
+    test("null and undefined are not considered equal", () => {
+        const matcher = equalTo(null);
+
+        const result = matcher.match(undefined);
+
+        assert.deepStrictEqual(result, unmatched("was undefined"));
+    });
+
     test("description is value string", () => {
         const matcher = equalTo(1);
 
