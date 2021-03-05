@@ -30,7 +30,7 @@ suite(__filename, () => {
 
     const descriptionTestCases: Array<[string, unknown, string]> = [
         ["number", 1, "1"],
-        ["string", "hello", '"hello"'],
+        ["string", "hello", "'hello'"],
         ["null", null, "null"],
         ["undefined", undefined, "undefined"],
         ["true", true, "true"],

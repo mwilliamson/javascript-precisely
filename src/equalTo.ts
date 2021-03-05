@@ -1,3 +1,5 @@
+import { inspect } from "util";
+
 import { Matcher, matched, unmatched } from "./core";
 
 export function equalTo(value: unknown): Matcher {
@@ -17,10 +19,5 @@ export function equalTo(value: unknown): Matcher {
 }
 
 function toString(value: unknown): string {
-    // TODO: handle arrays and objects
-    if (typeof value === "string") {
-        return JSON.stringify(value);
-    } else {
-        return String(value);
-    }
+    return inspect(value);
 }
