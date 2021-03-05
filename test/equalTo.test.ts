@@ -28,11 +28,22 @@ suite(__filename, () => {
         assert.deepStrictEqual(result, unmatched("was undefined"));
     });
 
-    test("description is value string", () => {
-        const matcher = equalTo(1);
+    const descriptionTestCases: Array<[string, unknown, string]> = [
+        ["number", 1, "1"],
+        ["string", "hello", '"hello"'],
+        ["null", null, "null"],
+        ["undefined", undefined, "undefined"],
+        ["true", true, "true"],
+        ["false", false, "false"],
+    ];
 
-        const result = matcher.describe();
+    for (const [name, value, expectedDescription] of descriptionTestCases) {
+        test(`description of ${name}`, () => {
+            const matcher = equalTo(value);
 
-        assert.strictEqual(result, "1");
-    });
+            const result = matcher.describe();
+
+            assert.strictEqual(result, expectedDescription);
+        });
+    }
 });
