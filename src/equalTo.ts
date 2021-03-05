@@ -17,6 +17,7 @@ export function equalTo(value: unknown): Matcher {
 }
 
 function toString(value: unknown): string {
+    // TODO: handle arrays and objects
     if (typeof value === "string") {
         return JSON.stringify(value);
     } else {
