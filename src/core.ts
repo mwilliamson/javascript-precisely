@@ -1,12 +1,14 @@
+export type Failure = {isMatch: false, explanation: string};
+
 export type Result =
-    | {isMatch: false, explanation: string}
+    | Failure
     | {isMatch: true};
 
 export function matched(): Result {
     return {isMatch: true};
 }
 
-export function unmatched(explanation: string): Result {
+export function unmatched(explanation: string): Failure {
     return {isMatch: false, explanation: explanation};
 }
 
