@@ -1,4 +1,4 @@
-import { Failure, Matcher, matched, unmatched } from "./core";
+import { Failure, Matcher, Result, matched, unmatched } from "./core";
 import { describeValue } from "./describeValue";
 import { indentedList } from "./formatting";
 import { toMatcher } from "./toMatcher";
@@ -24,57 +24,74 @@ export function containsExactly(...valuesOrMatchers: Array<unknown>): Matcher {
             if (!isArrayLike(actual) && !isIterable(actual)) {
                 return unmatched(`was neither iterable nor array-like\nwas ${describeValue(actual)}`);
             }
-            const actualArray = Array.from(actual);
 
-            const elementMatches = actualArray.map(element => ({
-                element: element,
-                isMatched: false,
-            }));
+            const elementMatching = new ElementMatching(Array.from(actual));
 
             for (const elementMatcher of elementMatchers) {
-                const mismatches: Array<Failure> = [];
-                let elementMatcherMatched = false;
-                for (const elementMatch of elementMatches) {
-                    if (elementMatch.isMatched) {
-                        mismatches.push(unmatched("already matched"));
-                    } else {
-                        const elementResult = elementMatcher.match(elementMatch.element);
-                        if (elementResult.isMatch) {
-                            elementMatch.isMatched = true;
-                            elementMatcherMatched = true;
-                            break;
-                        } else {
-                            mismatches.push(elementResult);
-                        }
-                    }
-                }
-                if (!elementMatcherMatched) {
-                    if (actualArray.length === 0) {
-                        return unmatched("iterable was empty");
-                    } else {
-                        return unmatched(
-                            `was missing element:${indentedList([elementMatcher.describe()])}\n` +
-                            "These elements were in the iterable but did not match the missing element:" +
-                            indentedList(actualArray.map(
-                                (element, elementIndex) => `${describeValue(element)}: ${mismatches[elementIndex].explanation}`
-                            )),
-                        );
-                    }
+                const result = elementMatching.match(elementMatcher);
+                if (!result.isMatch) {
+                    return result;
                 }
             }
 
-            const allMatched = elementMatches.every(match => match.isMatched);
-            if (allMatched) {
-                return matched();
-            } else {
-                const unmatchedElementDescriptions = elementMatches
-                    .filter(match => !match.isMatched)
-                    .map(match => describeValue(match.element));
-
-                return unmatched(`had extra elements:${indentedList(unmatchedElementDescriptions)}`);
-            }
+            return elementMatching.matchNoneUnmatched();
         },
     };
+}
+
+interface ElementStatus {
+    element: unknown;
+    isMatched: boolean;
+}
+
+class ElementMatching {
+    private elementStatuses: Array<ElementStatus>;
+
+    constructor(elements: Array<unknown>) {
+        this.elementStatuses = elements.map(element => ({element, isMatched: false}));
+    }
+
+    public match(elementMatcher: Matcher): Result {
+        const mismatches: Array<Failure> = [];
+
+        for (const elementStatus of this.elementStatuses) {
+            if (elementStatus.isMatched) {
+                mismatches.push(unmatched("already matched"));
+            } else {
+                const elementResult = elementMatcher.match(elementStatus.element);
+                if (elementResult.isMatch) {
+                    elementStatus.isMatched = true;
+                    return matched();
+                } else {
+                    mismatches.push(elementResult);
+                }
+            }
+        }
+        if (this.elementStatuses.length === 0) {
+            return unmatched("iterable was empty");
+        } else {
+            return unmatched(
+                `was missing element:${indentedList([elementMatcher.describe()])}\n` +
+                "These elements were in the iterable but did not match the missing element:" +
+                indentedList(this.elementStatuses.map(
+                    ({element}, elementIndex) => `${describeValue(element)}: ${mismatches[elementIndex].explanation}`
+                )),
+            );
+        }
+    }
+
+    public matchNoneUnmatched(): Result {
+        const allMatched = this.elementStatuses.every(status => status.isMatched);
+        if (allMatched) {
+            return matched();
+        } else {
+            const unmatchedElementDescriptions = this.elementStatuses
+                .filter(status => !status.isMatched)
+                .map(status => describeValue(status.element));
+
+            return unmatched(`had extra elements:${indentedList(unmatchedElementDescriptions)}`);
+        }
+    }
 }
 
 function isArrayLike(value: unknown): value is ArrayLike<unknown> {
