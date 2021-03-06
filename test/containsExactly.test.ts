@@ -84,4 +84,28 @@ suite(__filename, () => {
 
         assert.deepStrictEqual(result, unmatched("had extra elements:\n * 'coconut'"));
     });
+
+    test("description is of empty iterable when there are zero submatchers", () => {
+        const matcher = containsExactly();
+
+        const result = matcher.describe();
+
+        assert.strictEqual(result, "empty iterable");
+    });
+
+    test("description uses singular when there is one submatcher", () => {
+        const matcher = containsExactly(equalTo("apple"));
+
+        const result = matcher.describe();
+
+        assert.strictEqual(result, "iterable containing 1 element:\n * 'apple'");
+    });
+
+    test("description contains descriptions of submatchers", () => {
+        const matcher = containsExactly(equalTo("apple"), equalTo("banana"));
+
+        const result = matcher.describe();
+
+        assert.strictEqual(result, "iterable containing these 2 elements in any order:\n * 'apple'\n * 'banana'");
+    });
 });

@@ -8,7 +8,16 @@ export function containsExactly(...valuesOrMatchers: Array<unknown>): Matcher {
 
     return {
         describe() {
-            return "";
+            const elementMatchersDescription = indentedList(
+                elementMatchers.map(elementMatcher => elementMatcher.describe()),
+            );
+            if (elementMatchers.length === 0) {
+                return "empty iterable";
+            } else if (elementMatchers.length === 1) {
+                return `iterable containing 1 element:${elementMatchersDescription}`;
+            } else {
+                return `iterable containing these ${elementMatchers.length} elements in any order:${elementMatchersDescription}`;
+            }
         },
 
         match(actual: unknown) {
