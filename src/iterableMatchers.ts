@@ -21,22 +21,47 @@ export function containsExactly(...valuesOrMatchers: Array<unknown>): Matcher {
         },
 
         match(actual: unknown) {
-            if (!isArrayLike(actual) && !isIterable(actual)) {
-                return unmatched(`was neither iterable nor array-like\nwas ${describeValue(actual)}`);
-            }
-
-            const elementMatching = new ElementMatching(Array.from(actual));
-
-            for (const elementMatcher of elementMatchers) {
-                const result = elementMatching.match(elementMatcher);
-                if (!result.isMatch) {
-                    return result;
-                }
-            }
-
-            return elementMatching.matchNoneUnmatched();
+            return matchIncludes(elementMatchers, actual, {allowExtra: false});
         },
     };
+}
+
+export function includes(...valuesOrMatchers: Array<unknown>): Matcher {
+    const elementMatchers = valuesOrMatchers.map(matcherOrValue => toMatcher(matcherOrValue));
+
+    return {
+        describe() {
+            const elementMatchersDescription = indentedList(
+                elementMatchers.map(elementMatcher => elementMatcher.describe()),
+            );
+            return `iterable including elements:${elementMatchersDescription}`;
+        },
+
+        match(actual: unknown) {
+            return matchIncludes(elementMatchers, actual, {allowExtra: true});
+        },
+    };
+}
+
+function matchIncludes(elementMatchers: Array<Matcher>, actual: unknown, {allowExtra}: {allowExtra: boolean}): Result {
+    if (!isArrayLike(actual) && !isIterable(actual)) {
+        return unmatched(`was neither iterable nor array-like\nwas ${describeValue(actual)}`);
+    }
+
+    const elementMatching = new ElementMatching(Array.from(actual));
+
+    for (const elementMatcher of elementMatchers) {
+        const result = elementMatching.match(elementMatcher);
+        if (!result.isMatch) {
+            return result;
+        }
+    }
+
+    if (allowExtra) {
+        return matched();
+    } else {
+        return elementMatching.matchNoneUnmatched();
+    }
 }
 
 interface ElementStatus {
