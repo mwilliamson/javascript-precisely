@@ -108,4 +108,12 @@ suite(__filename, () => {
 
         assert.strictEqual(result, "iterable containing these 2 elements in any order:\n * 'apple'\n * 'banana'");
     });
+
+    test("elements are coerced to matchers", () => {
+        const matcher = containsExactly("apple", "banana");
+
+        const result = matcher.describe();
+
+        assert.strictEqual(result, "iterable containing these 2 elements in any order:\n * 'apple'\n * 'banana'");
+    });
 });
