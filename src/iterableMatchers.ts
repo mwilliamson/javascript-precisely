@@ -1,6 +1,6 @@
 import { Failure, Matcher, Result, matched, unmatched } from "./core";
 import { describeValue } from "./describeValue";
-import { indentedList } from "./formatting";
+import { indentedList, indexedIndentedList } from "./formatting";
 import { toMatcher } from "./toMatcher";
 
 export function containsExactly(...valuesOrMatchers: Array<unknown>): Matcher {
@@ -12,7 +12,7 @@ export function containsExactly(...valuesOrMatchers: Array<unknown>): Matcher {
                 elementMatchers.map(elementMatcher => elementMatcher.describe()),
             );
             if (elementMatchers.length === 0) {
-                return "empty iterable";
+                return emptyIterableDescription;
             } else if (elementMatchers.length === 1) {
                 return `iterable containing 1 element:${elementMatchersDescription}`;
             } else {
@@ -44,8 +44,8 @@ export function includes(...valuesOrMatchers: Array<unknown>): Matcher {
 }
 
 function matchIncludes(elementMatchers: Array<Matcher>, actual: unknown, {allowExtra}: {allowExtra: boolean}): Result {
-    if (!isArrayLike(actual) && !isIterable(actual)) {
-        return unmatched(`was neither iterable nor array-like\nwas ${describeValue(actual)}`);
+    if (!isArrayish(actual)) {
+        return unmatchedArrayish(actual);
     }
 
     const elementMatching = new ElementMatching(Array.from(actual));
@@ -118,6 +118,69 @@ class ElementMatching {
         }
     }
 }
+
+export function isSequence(...valuesOrMatchers: Array<unknown>): Matcher {
+    const elementMatchers = valuesOrMatchers.map(matcherOrValue => toMatcher(matcherOrValue));
+
+    return {
+        describe() {
+            if (elementMatchers.length === 0) {
+                return emptyIterableDescription;
+            } else {
+                const elementsDescription = indexedIndentedList(
+                    elementMatchers.map(elementMatcher => elementMatcher.describe()),
+                );
+                return `iterable containing in order:${elementsDescription}`
+            }
+        },
+
+        match(actual: unknown) {
+            if (!isArrayish(actual)) {
+                return unmatchedArrayish(actual);
+            }
+
+            const elements = Array.from(actual);
+
+            if (elements.length === 0 && elementMatchers.length != 0) {
+                return unmatched("iterable was empty");
+            }
+
+            for (let elementIndex = 0; elementIndex < elementMatchers.length; elementIndex++) {
+                const elementMatcher = elementMatchers[elementIndex];
+                if (elementIndex >= elements.length) {
+                    return unmatched(`element at index ${elementIndex} was missing`);
+                }
+                const element = elements[elementIndex];
+
+                const elementResult = elementMatcher.match(element);
+                if (!elementResult.isMatch) {
+                    return unmatched(`element at index ${elementIndex} mismatched:${indentedList([elementResult.explanation])}`);
+                }
+            }
+
+            if (elements.length > elementMatchers.length) {
+                const extraElementsDescription = indentedList(
+                    elements
+                        .slice(elementMatchers.length)
+                        .map(element => describeValue(element)),
+                );
+                return unmatched(`had extra elements:${extraElementsDescription}`);
+            }
+
+            return matched();
+        },
+    };
+}
+
+function isArrayish(actual: unknown): actual is ArrayLike<unknown> | Iterable<unknown> {
+    return isArrayLike(actual) || isIterable(actual);
+}
+
+function unmatchedArrayish(actual: unknown): Result {
+    return unmatched(`was neither iterable nor array-like\nwas ${describeValue(actual)}`);
+}
+
+const emptyIterableDescription = "empty iterable";
 
 function isArrayLike(value: unknown): value is ArrayLike<unknown> {
     return typeof value === "object" && value != null && typeof (value as any).length === "number";
