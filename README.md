@@ -81,8 +81,8 @@ For instance, `hasProperties({name: "bob"})` is equivalent to `hasProperties({na
 
   ```javascript
   assertThat(result, containsExactly("a", "b"));
-  # Matches ["a", "b"] and ["b", "a"],
-  # but not ["a", "a", "b"] nor ["a"] nor ["a", "b", "c"]
+  // Matches ["a", "b"] and ["b", "a"],
+  // but not ["a", "a", "b"] nor ["a"] nor ["a", "b", "c"]
   ```
 
 * `isSequence(...elements)`: matches an iterable if it has the same elements in the same order.
@@ -90,8 +90,8 @@ For instance, `hasProperties({name: "bob"})` is equivalent to `hasProperties({na
 
   ```javascript
   assertThat(result, isSequence("a", "b"));
-  # Matches ["a", "b"]
-  # but not ["b", "a"] nor ["a", "b", "c"] nor ["c", "a", "b"]
+  // Matches ["a", "b"]
+  // but not ["b", "a"] nor ["a", "b", "c"] nor ["c", "a", "b"]
   ```
 
 * `includes(*args)`: matches an iterable if it includes all of the elements.
@@ -100,11 +100,11 @@ For instance, `hasProperties({name: "bob"})` is equivalent to `hasProperties({na
   ```javascript
 
   assertThat(result, includes("a", "b"));
-  # Matches ["a", "b"], ["b", "a"] and ["a", "c", "b"]
-  # but not ["a", "c"] nor ["a"]
+  // Matches ["a", "b"], ["b", "a"] and ["a", "c", "b"]
+  // but not ["a", "c"] nor ["a"]
   assertThat(result, includes("a", "a"));
-  # Matches ["a", "a"] and ["a", "a", "a"]
-  # but not ["a"]
+  // Matches ["a", "a"] and ["a", "a", "a"]
+  // but not ["a"]
   ```
 
 * `anything`: matches all values.
