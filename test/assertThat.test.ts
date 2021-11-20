@@ -11,7 +11,7 @@ suite(__filename, () => {
         try {
             assertThat(1, equalTo(2));
             assert.fail("Expected AssertionError");
-        } catch (error) {
+        } catch (error: any) {
             assert.strictEqual(error.message, "\nExpected:\n  2\nbut:\n  was 1");
         }
     });
