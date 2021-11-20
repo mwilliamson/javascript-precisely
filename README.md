@@ -64,6 +64,8 @@ For instance, `hasProperties({name: "bob"})` is equivalent to `hasProperties({na
 
 * `equalTo(value)`: matches a value if it is equal to `value` using `===`.
 
+* `deepEqualTo(value)`: matches a value if it is deeply strictly equal to `value`.
+
 * `hasProperties(properties)`: matches a value if it has the specified properties.
   For instance:
 

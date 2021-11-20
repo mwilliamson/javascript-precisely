@@ -35,6 +35,7 @@
     "ui": "tdd"
   },
   "dependencies": {
-    "assertion-error": "^1.1.0"
+    "assertion-error": "^1.1.0",
+    "fast-deep-equal": "^3.1.3"
   }
 }

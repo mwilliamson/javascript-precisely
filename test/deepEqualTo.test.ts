@@ -1,11 +1,11 @@
 import assert from "assert";
 
-import { equalTo } from "../";
+import { deepEqualTo } from "../";
 import { matched, unmatched } from "../lib/core";
 
 suite(__filename, () => {
     test("matches when primitive values are strictly equal", () => {
-        const matcher = equalTo(1);
+        const matcher = deepEqualTo(1);
 
         const result = matcher.match(1);
 
@@ -13,7 +13,7 @@ suite(__filename, () => {
     });
 
     test("does not matches when primitive values are equal but not strictly equal", () => {
-        const matcher = equalTo(1);
+        const matcher = deepEqualTo(1);
 
         const result = matcher.match("1");
 
@@ -21,23 +21,23 @@ suite(__filename, () => {
     });
 
     test("matches when objects are strictly equal", () => {
-        const matcher = equalTo(1);
+        const matcher = deepEqualTo({one: 1, two: [2]});
 
-        const result = matcher.match(1);
+        const result = matcher.match({one: 1, two: [2]});
 
         assert.deepStrictEqual(result, matched());
     });
 
     test("does not match when objects are deep equal but not strictly equal", () => {
-        const matcher = equalTo({});
+        const matcher = deepEqualTo({one: "1", two: ["2"]});
 
-        const result = matcher.match({});
+        const result = matcher.match({one: 1, two: [2]});
 
-        assert.deepStrictEqual(result, unmatched("was {}"));
+        assert.deepStrictEqual(result, unmatched("was { one: 1, two: [ 2 ] }"));
     });
 
     test("explanation of mismatch contains actual", () => {
-        const matcher = equalTo(1);
+        const matcher = deepEqualTo(1);
 
         const result = matcher.match(2);
 
@@ -45,7 +45,7 @@ suite(__filename, () => {
     });
 
     test("null and undefined are not considered equal", () => {
-        const matcher = equalTo(null);
+        const matcher = deepEqualTo(null);
 
         const result = matcher.match(undefined);
 
@@ -63,7 +63,7 @@ suite(__filename, () => {
 
     for (const [name, value, expectedDescription] of descriptionTestCases) {
         test(`description of ${name}`, () => {
-            const matcher = equalTo(value);
+            const matcher = deepEqualTo(value);
 
             const result = matcher.describe();
 
