@@ -1,6 +1,6 @@
 {
   "name": "@mwilliamson/precisely",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Matcher library for JavaScript",
   "main": "lib/index.js",
   "scripts": {
