@@ -1,8 +1,9 @@
 import { Matcher } from "./core";
 import { equalTo } from "./equalTo";
 
-function isMatcher(value: unknown): value is Matcher {
-    return Object.prototype.hasOwnProperty.call(value, "match") &&
+export function isMatcher(value: unknown): value is Matcher {
+    return value != null &&
+        Object.prototype.hasOwnProperty.call(value, "match") &&
         Object.prototype.hasOwnProperty.call(value, "describe");
 }
 
