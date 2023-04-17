@@ -1,5 +1,6 @@
 import assert from "assert";
-import {startsWith} from "../";
+
+import { startsWith } from "../";
 import { matched, unmatched } from "../lib/core";
 
 suite(__filename, () => {
