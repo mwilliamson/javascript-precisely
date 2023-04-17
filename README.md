@@ -110,3 +110,5 @@ For instance, `hasProperties({name: "bob"})` is equivalent to `hasProperties({na
   ```
 
 * `anything`: matches all values.
+
+* `startsWith(prefix)`: matches a string if it starts with `prefix`.
