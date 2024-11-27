@@ -17,6 +17,14 @@ export function hasProperties(propertyMatchersOrValues: {[key: string]: unknown}
         },
 
         match(value: unknown) {
+            if (value === undefined) {
+                return unmatched("was undefined");
+            }
+
+            if (value === null) {
+                return unmatched("was null");
+            }
+
             for (const [key, propertyMatcher] of propertyMatchers) {
                 if (!Object.prototype.hasOwnProperty.call(value, key)) {
                     return unmatched(`was missing property ${describeValue(key)}`);

@@ -4,6 +4,26 @@ import { equalTo, hasProperties } from "../";
 import { matched, unmatched } from "../lib/core";
 
 suite(__filename, () => {
+    test("mismatches undefined", () => {
+        const matcher = hasProperties({
+            username: equalTo("bob"),
+        });
+
+        const result = matcher.match(undefined);
+
+        assert.deepStrictEqual(result, unmatched("was undefined"));
+    });
+
+    test("mismatches null", () => {
+        const matcher = hasProperties({
+            username: equalTo("bob"),
+        });
+
+        const result = matcher.match(null);
+
+        assert.deepStrictEqual(result, unmatched("was null"));
+    });
+
     test("matches when properties all match", () => {
         const matcher = hasProperties({
             username: equalTo("bob"),
