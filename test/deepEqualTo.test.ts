@@ -36,6 +36,22 @@ suite(__filename, () => {
         assert.deepStrictEqual(result, unmatched("was { one: 1, two: [ 2 ] }"));
     });
 
+    test("matches when maps have same entries", () => {
+        const matcher = deepEqualTo(new Map([["a", 42]]));
+
+        const result = matcher.match(new Map([["a", 42]]));
+
+        assert.deepStrictEqual(result, matched());
+    });
+
+    test("does not match when maps have different entries", () => {
+        const matcher = deepEqualTo(new Map([["a", 42]]));
+
+        const result = matcher.match(new Map([["a", 47]]));
+
+        assert.deepStrictEqual(result, unmatched("was Map(1) { 'a' => 47 }"));
+    });
+
     test("explanation of mismatch contains actual", () => {
         const matcher = deepEqualTo(1);
 
