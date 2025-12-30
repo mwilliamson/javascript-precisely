@@ -2,6 +2,7 @@ import assert from "assert";
 
 import { deepEqualTo } from "../";
 import { matched, unmatched } from "../lib/core";
+import { describeValue } from "../lib/describeValue";
 
 suite(__filename, () => {
     test("matches when primitive values are strictly equal", () => {
@@ -46,10 +47,11 @@ suite(__filename, () => {
 
     test("does not match when maps have different entries", () => {
         const matcher = deepEqualTo(new Map([["a", 42]]));
+        const actual = new Map([["a", 47]]);
 
-        const result = matcher.match(new Map([["a", 47]]));
+        const result = matcher.match(actual);
 
-        assert.deepStrictEqual(result, unmatched("was Map(1) { 'a' => 47 }"));
+        assert.deepStrictEqual(result, unmatched(`was ${describeValue(actual)}`));
     });
 
     test("explanation of mismatch contains actual", () => {
